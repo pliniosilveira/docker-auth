@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+	"encoding/json"
 
 	"github.com/Sirupsen/logrus"
 	dockerapi "github.com/docker/docker/api"
@@ -44,6 +45,16 @@ type authPlugin struct {
 }
 
 func (p *authPlugin) AuthZReq(req authorization.Request) authorization.Response {
+	if !strings.Contains(req.RequestURI, "/version") {
+		logrus.WithFields(logrus.Fields{"REQ": req}).Debug("rEQ")
+		if req.RequestBody != nil {
+			var dat map[string]interface{}
+			if err := json.Unmarshal(req.RequestBody, &dat); err != nil {
+				panic(err)
+			}
+			fmt.Println("\n", dat, "\n")
+		}
+	}
 	if !strings.Contains(req.RequestURI, "/containers/create") {
 		return authorization.Response{Allow: true}
 	}
@@ -57,5 +68,21 @@ func (p *authPlugin) AuthZReq(req authorization.Request) authorization.Response 
 }
 
 func (p *authPlugin) AuthZRes(req authorization.Request) authorization.Response {
+//	if !strings.Contains(req.RequestURI, "/version") {
+//		logrus.WithFields(logrus.Fields{"RES": req}).Debug("rES")
+//	}
+	if strings.Contains(req.RequestURI, "exec") {
+		if strings.Contains(req.RequestURI, "json") {
+			logrus.WithFields(logrus.Fields{"RES": req}).Debug("rES")
+			if req.ResponseStatusCode == 200 {
+				var dat map[string]interface{}
+				if err := json.Unmarshal(req.ResponseBody, &dat); err != nil {
+					panic(err)
+				}
+				fmt.Println("\n", dat, "\n")
+			}
+		}
+	}
 	return authorization.Response{Allow: true}
 }
+

@@ -18,7 +18,7 @@ var (
 	flCertPath   = flag.String("cert-path", "", "Certificates path to connect to Docker (cert.pem, key.pem)")
 	flTLSVerify  = flag.Bool("tls-verify", false, "Whether to verify certificates or not")
 	flDebug      = flag.Bool("debug", false, "Print debug message")
-	flAddr       = flag.String("addr", "0.0.0.0:8080", "[HOSTNAME:PORT] for running web server")
+	flAddr       = flag.String("addr", "0.0.0.0:1808", "[HOSTNAME:PORT] for running web server")
 )
 
 func main() {
@@ -26,6 +26,7 @@ func main() {
 
 	if *flDebug {
 		logrus.SetLevel(logrus.DebugLevel)
+		logrus.SetFormatter(&logrus.JSONFormatter{})
 	}
 	logrus.Debug("Docker auth plugin started")
 
